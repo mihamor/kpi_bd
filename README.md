@@ -76,6 +76,7 @@ uid - посилання на користувача що залишив рей�
 tagname - унікальний ідентифікатор тегу, integer
 
 description - додатковий опис тегy, integer
+
 ![tags](https://raw.githubusercontent.com/mihamor/kpi_bd/master/tags.png)
 
 ### tag_question
