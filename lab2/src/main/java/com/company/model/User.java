@@ -1,6 +1,7 @@
 package com.company.model;
 
 public class User {
+    @Primary
     final private Long id;
     private String name;
     private String address;

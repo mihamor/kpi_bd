@@ -10,6 +10,11 @@ public class DAO implements IDAO {
     IDAOImpl<User> usersDAOImpl;
     IDAOImpl<Comment> commentDAOImpl;
 
+    public DAO() {
+        usersDAOImpl = new DAOImpl<User>(User.class);
+        commentDAOImpl = new DAOImpl<Comment>(Comment.class);
+    }
+
     public User getUser(Long id) {
         return usersDAOImpl.getEntity(id);
     }
