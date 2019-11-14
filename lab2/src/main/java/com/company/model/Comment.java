@@ -1,23 +1,24 @@
 package com.company.model;
 
+@TableName(name = "comments")
 public class Comment {
-    final protected User user;
+    final protected Long userId;
     final protected Long id;
     protected String content;
 
-    public Comment(Long id, User user) {
-        this.user = user;
+    public Comment(Long id, Long userId) {
+        this.userId = userId;
         this.id = id;
     }
 
-    public Comment(Long id, User user, String content) {
-        this.user = user;
+    public Comment(Long id, Long userId, String content) {
+        this.userId = userId;
         this.id = id;
         this.content = content;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
     public String getContent() {

@@ -4,12 +4,12 @@ public class Review extends  Comment {
 
     private Grade grade;
 
-    public Review(Long id, User user) {
-        super(id, user);
+    public Review(Long id, Long userId) {
+        super(id, userId);
     }
 
-    public Review(Long id, User user, String content, Grade grade) {
-        super(id, user, content);
+    public Review(Long id, Long userId, String content, Grade grade) {
+        super(id, userId, content);
         this.grade = grade;
     }
 
