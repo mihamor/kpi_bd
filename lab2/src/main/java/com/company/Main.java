@@ -54,7 +54,7 @@ public class Main {
             System.out.println("Reviews: ");
             List<Review> reviews = dao.getReviewList();
             for (Review review:reviews) {
-                System.out.println(review.getContent() + " " + review.getGrade());
+                System.out.println(review.getGrade());
             }
         } catch (SQLException ex) {
             lgr.log(Level.SEVERE, ex.getMessage(), ex);

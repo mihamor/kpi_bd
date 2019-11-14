@@ -2,7 +2,7 @@ package com.company.model;
 
 @TableName(name = "feedback")
 @DiscriminatorValue("review")
-public class Review extends  Comment {
+public class Review extends Feedback {
 
     private Grade grade;
 
@@ -12,8 +12,8 @@ public class Review extends  Comment {
         super(id, userId);
     }
 
-    public Review(Long id, Long userId, String content, Grade grade) {
-        super(id, userId, content);
+    public Review(Long id, Long userId, Grade grade) {
+        super(id, userId);
         this.grade = grade;
     }
 

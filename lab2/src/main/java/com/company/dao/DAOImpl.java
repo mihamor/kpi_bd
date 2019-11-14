@@ -1,5 +1,6 @@
 package com.company.dao;
 
+import com.company.model.DiscriminationColumn;
 import com.company.model.DiscriminatorValue;
 import com.company.model.TableName;
 import com.company.utils.ReflectionUtils;
@@ -48,6 +49,8 @@ public class DAOImpl<T> implements IDAOImpl<T> {
     }
 
     private List<T> resultSetToList(ResultSet resultSet) throws SQLException {
+        DiscriminationColumn columnAnnotation = clazz.getAnnotation(DiscriminationColumn.class);
+        String discriminatorColumn = columnAnnotation != null ? columnAnnotation.name() : null;
         DiscriminatorValue discriminatorAnnotation = clazz.getAnnotation(DiscriminatorValue.class);
         String discriminator = discriminatorAnnotation != null ? discriminatorAnnotation.value() : null;
 
@@ -61,7 +64,7 @@ public class DAOImpl<T> implements IDAOImpl<T> {
         List<T> list = new ArrayList<>();
         resultSet.beforeFirst();
         while (resultSet.next()) {
-            if(discriminator == null || resultSet.getString("dtype").equals(discriminator)) {
+            if(discriminatorColumn == null || resultSet.getString(discriminatorColumn).equals(discriminator)) {
                 T entity = createEntity(resultSet, fields);
                 list.add(entity);
             }
