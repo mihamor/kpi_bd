@@ -1,11 +1,47 @@
 package com.company;
 
 import com.company.dao.DAO;
+import com.company.model.User;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.*;
+import java.util.List;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Main {
 
     public static void main(String[] args) {
-        DAO dao = new DAO();
-        System.out.println(dao.getUserList());
+
+        Properties props = new Properties();
+        Logger lgr = Logger.getLogger(Main.class.getName());
+
+        try {
+            FileInputStream in = new FileInputStream(System.getProperty("user.dir") + "/db.properties");
+            props.load(in);
+            in.close();
+        } catch (IOException ex) {
+            lgr.log(Level.SEVERE, ex.getMessage(), ex);
+            return;
+        }
+
+        String url = props.getProperty("jdbc.url");
+        String username = props.getProperty("jdbc.username");
+        String password = props.getProperty("jdbc.password");
+
+        try {
+            DAO dao = new DAO(url, username, password);
+            dao.connect();
+            List<User> users = dao.getUserList();
+            for (User user:users) {
+                System.out.println(user.getName());
+            }
+        } catch (SQLException ex) {
+            lgr.log(Level.SEVERE, ex.getMessage(), ex);
+        }
     }
 }

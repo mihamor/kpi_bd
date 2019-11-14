@@ -1,15 +1,12 @@
 package com.company.model;
 
+@TableName(name = "users")
 public class User {
-    @Primary
-    final private Long id;
+    private Long id;
     private String name;
     private String address;
 
-    public User(Long id) {
-        this.id = id;
-    }
-
+    public User () {}
     public User(Long id, String name, String address) {
         this.id = id;
         this.name = name;
