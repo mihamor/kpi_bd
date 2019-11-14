@@ -1,62 +1,102 @@
-import com.company.Main;
 import com.company.dao.DAO;
+import com.company.dao.DAOImpl;
+import com.company.model.Comment;
+import com.company.model.Grade;
+import com.company.model.Review;
 import com.company.model.User;
+import org.jooq.tools.jdbc.MockConnection;
+import org.jooq.tools.jdbc.MockFileDatabase;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
 
 import static junit.framework.TestCase.*;
 
 public class DAOTest {
 
-    String url;
-    String password;
-    String username;
+    Connection connection;
+    DAOImpl<User> userDAO;
+    DAOImpl<Comment> commentDAO;
+    DAOImpl<Review> reviewDAO;
 
     @Before
-    public void init() {
-        Properties props = new Properties();
-        Logger lgr = Logger.getLogger(Main.class.getName());
+    public void init() throws IOException, SQLException {
+        MockFileDatabase db = new MockFileDatabase(new File(System.getProperty("user.dir") + "/db.test"));
+        connection = new MockConnection(db);
 
-        try {
-            FileInputStream in = new FileInputStream(System.getProperty("user.dir") + "/db.properties");
-            props.load(in);
-            in.close();
-        } catch (IOException ex) {
-            lgr.log(Level.SEVERE, ex.getMessage(), ex);
-            return;
-        }
-
-        url = props.getProperty("jdbc.url");
-        username = props.getProperty("jdbc.username");
-        password = props.getProperty("jdbc.password");
+        userDAO = new DAOImpl<>(User.class, connection);
+        commentDAO = new DAOImpl<>(Comment.class, connection);
+        reviewDAO = new DAOImpl<>(Review.class, connection);
     }
 
     @Test
-    public void findsHardcodedUserInDB() throws SQLException {
-        User hardcodedUser = new User((long)1, "test", "test");
-        DAO dao = new DAO(url, username, password);
-        dao.connect();
-        User foundUser = dao.getUser(hardcodedUser.getId());
+    public void getValidUserList() throws SQLException {
+        List<User> users = userDAO.getEntityList();
 
-        assertNotNull(foundUser);
-        assertEquals(foundUser.getId(), hardcodedUser.getId());
-        assertEquals(foundUser.getAddress(), hardcodedUser.getAddress());
-        assertEquals(foundUser.getName(), hardcodedUser.getName());
+        assertEquals(2, users.size());
+        assertEquals("user1", users.get(0).getName());
+        assertEquals("user2", users.get(1).getName());
+    }
+
+    @Test
+    public void getValidCommentList() throws SQLException {
+        List<Comment> comments = commentDAO.getEntityList();
+
+        assertEquals(2, comments.size());
+        assertEquals("test1", comments.get(0).getContent());
+        assertEquals("test2", comments.get(1).getContent());
+    }
+
+    @Test
+    public void getValidReviewList() throws SQLException {
+        List<Review> reviews = reviewDAO.getEntityList();
+
+        assertEquals(1, reviews.size());
+        assertEquals(Grade.GOOD.getValue(), reviews.get(0).getGrade().getValue());
+    }
+
+    @Test
+    public void getValidUserById() throws SQLException {
+        Long id = new Long(1);
+        User user = userDAO.getEntity(id);
+
+        assertNotNull(user);
+        assertEquals(id, user.getId());
+        assertEquals("user1", user.getName());
+        assertEquals("addr1", user.getAddress());
     }
 
     @Test
     public void wontFindNonExistingUserInDB() throws SQLException {
-        DAO dao = new DAO(url, username, password);
-        dao.connect();
-        User foundUser = dao.getUser((long)-1);
+        Long id = new Long(3);
+        User user = userDAO.getEntity(id);
 
-        assertNull(foundUser);
+        assertNull(user);
+    }
+
+    @Test
+    public void getValidCommentById() throws SQLException {
+        Long id = new Long(1);
+        Comment comment = commentDAO.getEntity(id);
+
+        assertNotNull(comment);
+        assertEquals(id, comment.getId());
+        assertEquals("test1", comment.getContent());
+    }
+
+    @Test
+    public void getValidReviewById() throws SQLException {
+        Long id = new Long(3);
+        Review review = reviewDAO.getEntity(id);
+
+        assertNotNull(review);
+        assertEquals(id, review.getId());
+        assertEquals(Grade.GOOD.getValue(), review.getGrade().getValue());
     }
 }

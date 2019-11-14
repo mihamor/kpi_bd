@@ -1,0 +1,39 @@
+SELECT * FROM public.users;
+> id name  address
+> -- ----- -------
+> 1  user1 addr1
+> 2  user2 addr2
+@ rows: 2
+
+SELECT * FROM public.feedback;
+> id userId content  grade dtype
+> -- ------ -------  ----- -------
+> 1  1      test1          comment
+> 2  1      test2          comment
+> 3  2               GOOD  review
+@ rows: 3
+
+SELECT * FROM public.users WHERE id = 1;
+> id name  address
+> -- ----- -------
+> 1  user1 addr1
+@ rows: 1
+
+SELECT * FROM public.users WHERE id = 3;
+> id name  address
+> -- ----- -------
+@ rows: 0
+
+SELECT * FROM public.feedback WHERE id = 1;
+> id userId content  grade dtype
+> -- ------ -------  ----- -------
+> 1  1      test1          comment
+@ rows: 1
+
+SELECT * FROM public.feedback WHERE id = 3;
+> id userId content  grade dtype
+> -- ------ -------  ----- -------
+> 3  2               GOOD  review
+@ rows: 1
+
+
