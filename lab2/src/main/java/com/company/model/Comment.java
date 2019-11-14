@@ -1,10 +1,13 @@
 package com.company.model;
 
-@TableName(name = "comments")
+@TableName(name = "feedback")
+@DiscriminatorValue("comment")
 public class Comment {
-    final protected Long userId;
-    final protected Long id;
+    protected Long userId;
+    protected Long id;
     protected String content;
+
+    public Comment () {}
 
     public Comment(Long id, Long userId) {
         this.userId = userId;
@@ -19,6 +22,10 @@ public class Comment {
 
     public Long getUserId() {
         return userId;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getContent() {

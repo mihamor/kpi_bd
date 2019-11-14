@@ -1,6 +1,8 @@
 package com.company;
 
 import com.company.dao.DAO;
+import com.company.model.Comment;
+import com.company.model.Review;
 import com.company.model.User;
 
 import java.io.FileInputStream;
@@ -36,9 +38,23 @@ public class Main {
         try {
             DAO dao = new DAO(url, username, password);
             dao.connect();
+
+            System.out.println("Users: ");
             List<User> users = dao.getUserList();
             for (User user:users) {
                 System.out.println(user.getName());
+            }
+
+            System.out.println("Comments: ");
+            List<Comment> comments = dao.getCommentList();
+            for (Comment comment:comments) {
+                System.out.println(comment.getContent());
+            }
+
+            System.out.println("Reviews: ");
+            List<Review> reviews = dao.getReviewList();
+            for (Review review:reviews) {
+                System.out.println(review.getContent() + " " + review.getGrade());
             }
         } catch (SQLException ex) {
             lgr.log(Level.SEVERE, ex.getMessage(), ex);

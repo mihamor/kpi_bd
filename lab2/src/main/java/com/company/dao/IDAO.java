@@ -1,6 +1,7 @@
 package com.company.dao;
 
 import com.company.model.Comment;
+import com.company.model.Review;
 import com.company.model.User;
 
 import java.lang.reflect.InvocationTargetException;
@@ -18,6 +19,10 @@ public interface IDAO {
     Comment getComment(Long id) throws SQLException;
 
     List<Comment> getCommentList() throws SQLException;
+
+    Review getReview(Long id) throws SQLException;
+
+    List<Review> getReviewList() throws SQLException;
 
     String getEntityErrorMessage();
 }

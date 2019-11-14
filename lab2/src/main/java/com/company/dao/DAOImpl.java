@@ -1,6 +1,8 @@
 package com.company.dao;
 
+import com.company.model.DiscriminatorValue;
 import com.company.model.TableName;
+import com.company.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -19,44 +21,60 @@ public class DAOImpl<T> implements IDAOImpl<T> {
         this.connection = connection;
     }
 
-    private List<T> resultSetToList(ResultSet resultSet) {
-        Field[] fields = clazz.getDeclaredFields();
+    private T createEntity(ResultSet resultSet, List<Field> fields) {
+        T entity;
+        try {
+            entity = clazz.getConstructor().newInstance();
+            for (Field field : fields) {
+                String name = field.getName();
+                try {
+                    String value = resultSet.getString(name);
+                    Class type = field.getType();
+                    field.set(entity, type.isEnum()
+                            ? type.getDeclaredMethod("fromString", String.class).invoke(null, value)
+                            : type.getConstructor(String.class).newInstance(value));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (InstantiationException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | IllegalAccessException e) {
+            e.printStackTrace();
+            entity = null;
+        }
+        return entity;
+    }
+
+    private List<T> resultSetToList(ResultSet resultSet) throws SQLException {
+        DiscriminatorValue discriminatorAnnotation = clazz.getAnnotation(DiscriminatorValue.class);
+        String discriminator = discriminatorAnnotation != null ? discriminatorAnnotation.value() : null;
+
+        List<Field> fields = new ArrayList<>();
+        ReflectionUtils.getAllFields(fields, clazz);
+
         for(Field field: fields) {
             field.setAccessible(true);
         }
 
-        try {
-            List<T> list = new ArrayList<>();
-            while (resultSet.next()) {
-                T dto = clazz.getConstructor().newInstance();
-                for (Field field : fields) {
-                    String name = field.getName();
-                    try {
-                        String value = resultSet.getString(name);
-                        field.set(dto, field.getType().getConstructor(String.class).newInstance(value));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                list.add(dto);
+        List<T> list = new ArrayList<>();
+        resultSet.beforeFirst();
+        while (resultSet.next()) {
+            if(discriminator == null || resultSet.getString("dtype").equals(discriminator)) {
+                T entity = createEntity(resultSet, fields);
+                list.add(entity);
             }
-            return list;
-        } catch (SQLException
-                | IllegalAccessException
-                | NoSuchMethodException
-                | InstantiationException
-                | InvocationTargetException
-                ex) {
-            this.ex = ex;
         }
-        return null;
+        return list;
     }
 
     public List<T> getEntityList() throws SQLException {
         TableName tableAnnotation = clazz.getAnnotation(TableName.class);
 
         String sql = "SELECT * FROM public.$tableName".replace("$tableName", tableAnnotation.name());
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
         ResultSet resultSet = preparedStatement.executeQuery();
 
         return resultSetToList(resultSet);
@@ -71,7 +89,9 @@ public class DAOImpl<T> implements IDAOImpl<T> {
         TableName tableAnnotation = clazz.getAnnotation(TableName.class);
 
         String sql = "SELECT * FROM public.$tableName WHERE id = ?".replace("$tableName", tableAnnotation.name());
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY
+        );
         preparedStatement.setLong(1, id);
         ResultSet resultSet = preparedStatement.executeQuery();
 

@@ -1,6 +1,7 @@
 package com.company.dao;
 
 import com.company.model.Comment;
+import com.company.model.Review;
 import com.company.model.User;
 import java.sql.*;
 
@@ -10,6 +11,7 @@ public class DAO implements IDAO {
 
     IDAOImpl<User> usersDAOImpl;
     IDAOImpl<Comment> commentDAOImpl;
+    IDAOImpl<Review> reviewDAOImpl;
     Connection connection;
     String url;
     String user;
@@ -25,6 +27,7 @@ public class DAO implements IDAO {
         connection = DriverManager.getConnection(url, user, password);
         usersDAOImpl = new DAOImpl<User>(User.class, connection);
         commentDAOImpl = new DAOImpl<Comment>(Comment.class, connection);
+        reviewDAOImpl = new DAOImpl<Review>(Review.class, connection);
     }
 
     public User getUser(Long id) throws SQLException {
@@ -38,6 +41,14 @@ public class DAO implements IDAO {
     }
     public List<Comment> getCommentList() throws SQLException {
         return commentDAOImpl.getEntityList();
+    }
+
+    public Review getReview(Long id) throws SQLException {
+        return reviewDAOImpl.getEntity(id);
+    }
+
+    public List<Review> getReviewList() throws SQLException {
+        return reviewDAOImpl.getEntityList();
     }
 
     public String getEntityErrorMessage() {
