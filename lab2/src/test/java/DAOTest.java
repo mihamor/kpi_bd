@@ -25,7 +25,7 @@ public class DAOTest {
     DAOImpl<Review> reviewDAO;
 
     @Before
-    public void init() throws IOException, SQLException {
+    public void init() throws IOException {
         MockFileDatabase db = new MockFileDatabase(new File(System.getProperty("user.dir") + "/db.test"));
         connection = new MockConnection(db);
 
