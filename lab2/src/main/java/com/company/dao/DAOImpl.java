@@ -75,7 +75,7 @@ public class DAOImpl<T> implements IDAOImpl<T> {
     public List<T> getEntityList() throws SQLException {
         TableName tableAnnotation = clazz.getAnnotation(TableName.class);
 
-        String sql = "SELECT * FROM public.$tableName".replace("$tableName", tableAnnotation.name());
+        String sql = String.format("SELECT * FROM public.%s", tableAnnotation.name());
         PreparedStatement preparedStatement = connection.prepareStatement(
                 sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -91,7 +91,7 @@ public class DAOImpl<T> implements IDAOImpl<T> {
         T entity;
         TableName tableAnnotation = clazz.getAnnotation(TableName.class);
 
-        String sql = "SELECT * FROM public.$tableName WHERE id = ?".replace("$tableName", tableAnnotation.name());
+        String sql = String.format("SELECT * FROM public.%s WHERE id = ?", tableAnnotation.name());
         PreparedStatement preparedStatement = connection.prepareStatement(
                 sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY
         );
