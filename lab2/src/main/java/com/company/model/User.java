@@ -2,6 +2,8 @@ package com.company.model;
 
 @TableName(name = "users")
 public class User {
+
+    @Primary
     private Long id;
     private String name;
     private String address;

@@ -33,6 +33,10 @@ public class DAO implements IDAO {
     public User getUser(Long id) throws SQLException {
         return usersDAOImpl.getEntity(id);
     }
+
+    public void updateUser(User user) throws SQLException, IllegalAccessException {
+        usersDAOImpl.updateEntity(user);
+    }
     public List<User> getUserList() throws SQLException {
         return usersDAOImpl.getEntityList();
     }

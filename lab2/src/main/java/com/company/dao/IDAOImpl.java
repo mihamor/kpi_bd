@@ -9,5 +9,7 @@ public interface IDAOImpl<T> {
 
     List<T> getEntityList() throws SQLException;
 
+    void updateEntity(T entity) throws SQLException, IllegalAccessException;
+
     String getEntityErrorMessage();
 }

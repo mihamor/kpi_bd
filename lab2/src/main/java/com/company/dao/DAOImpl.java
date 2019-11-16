@@ -1,8 +1,6 @@
 package com.company.dao;
 
-import com.company.model.DiscriminationColumn;
-import com.company.model.DiscriminatorValue;
-import com.company.model.TableName;
+import com.company.model.*;
 import com.company.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -10,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class DAOImpl<T> implements IDAOImpl<T> {
 
@@ -106,4 +105,46 @@ public class DAOImpl<T> implements IDAOImpl<T> {
 
         return entity;
     }
+
+    public void updateEntity(T entity) throws SQLException, IllegalAccessException {
+        TableName tableAnnotation = clazz.getAnnotation(TableName.class);
+        List<Field> fields = new ArrayList<>();
+        ReflectionUtils.getAllFields(fields, clazz);
+
+        Field primaryField = null;
+        for(Field field: fields) {
+            field.setAccessible(true);
+            if (field.isAnnotationPresent(Primary.class)) {
+                primaryField = field;
+            }
+        }
+
+        T existingEntity = getEntity((Long) primaryField.get(entity));
+
+        if(existingEntity == null) throw new NoSuchElementException("No such entity");
+        String sql = String.format("UPDATE public.%s SET %s WHERE %s = ? RETURNING *;",
+                tableAnnotation.name(), getFieldSqlString(entity), primaryField.getName());
+
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setLong(1, (Long) primaryField.get(entity));
+        preparedStatement.executeQuery();
+    }
+
+    private String getFieldSqlString(T entity) throws IllegalAccessException {
+        List<Field> fields = new ArrayList<>();
+        ReflectionUtils.getAllFields(fields, clazz);
+
+        String sql = new String();
+        for(int fieldId = 0; fieldId < fields.size(); fieldId++) {
+            Field field = fields.get(fieldId);
+            field.setAccessible(true);
+            sql += String.format("%s = %s", field.getName(), field.get(entity));
+            if(fieldId != fields.size() - 1) {
+                sql += ", ";
+            }
+        }
+
+        return sql;
+    }
+
 }
