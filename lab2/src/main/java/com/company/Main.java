@@ -37,8 +37,6 @@ public class Main {
             DAO dao = new DAO(url, username, password);
             dao.connect();
 
-
-            dao.updateUser(new User((long) 1, "name", "12312"));
             System.out.println("Users: ");
             List<User> users = dao.getUserList();
             for (User user:users) {
@@ -56,7 +54,7 @@ public class Main {
             for (Review review:reviews) {
                 System.out.println(review.getGrade());
             }
-        } catch (SQLException | IllegalAccessException ex) {
+        } catch (SQLException ex) {
             lgr.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }

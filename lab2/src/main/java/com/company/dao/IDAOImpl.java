@@ -1,6 +1,5 @@
 package com.company.dao;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -9,7 +8,7 @@ public interface IDAOImpl<T> {
 
     List<T> getEntityList() throws SQLException;
 
-    void updateEntity(T entity) throws SQLException, IllegalAccessException;
+    T updateEntity(T entity) throws SQLException, IllegalAccessException;
 
     String getEntityErrorMessage();
 }

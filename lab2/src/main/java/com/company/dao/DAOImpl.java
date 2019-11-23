@@ -106,7 +106,7 @@ public class DAOImpl<T> implements IDAOImpl<T> {
         return entity;
     }
 
-    public void updateEntity(T entity) throws SQLException, IllegalAccessException {
+    public T updateEntity(T entity) throws SQLException, IllegalAccessException {
         TableName tableAnnotation = clazz.getAnnotation(TableName.class);
         List<Field> fields = new ArrayList<>();
         ReflectionUtils.getAllFields(fields, clazz);
@@ -119,20 +119,32 @@ public class DAOImpl<T> implements IDAOImpl<T> {
             }
         }
 
-        T existingEntity = getEntity((Long) primaryField.get(entity));
-
-        if(existingEntity == null) throw new NoSuchElementException("No such entity");
         String sql = String.format("UPDATE public.%s SET %s WHERE %s = ? RETURNING *;",
                 tableAnnotation.name(), getFieldSqlString(entity), primaryField.getName());
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setLong(1, (Long) primaryField.get(entity));
-        preparedStatement.executeQuery();
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        T updatedEntity;
+        try {
+            updatedEntity = resultSetToList(resultSet).get(0);
+        } catch (IndexOutOfBoundsException ex) {
+            updatedEntity = null;
+        }
+
+        return updatedEntity;
     }
 
     private String getFieldSqlString(T entity) throws IllegalAccessException {
         List<Field> fields = new ArrayList<>();
         ReflectionUtils.getAllFields(fields, clazz);
+
+        DiscriminationColumn columnAnnotation = clazz.getAnnotation(DiscriminationColumn.class);
+        String discriminatorColumn = columnAnnotation != null ? columnAnnotation.name() : null;
+        DiscriminatorValue discriminatorAnnotation = clazz.getAnnotation(DiscriminatorValue.class);
+        String discriminator = discriminatorAnnotation != null ? discriminatorAnnotation.value() : null;
+
 
         String sql = new String();
         for(int fieldId = 0; fieldId < fields.size(); fieldId++) {
@@ -142,6 +154,10 @@ public class DAOImpl<T> implements IDAOImpl<T> {
             if(fieldId != fields.size() - 1) {
                 sql += ", ";
             }
+        }
+
+        if(discriminatorColumn != null) {
+            sql += String.format(", %s = %s", discriminatorColumn, discriminator);
         }
 
         return sql;

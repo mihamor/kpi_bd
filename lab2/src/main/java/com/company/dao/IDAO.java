@@ -15,7 +15,7 @@ public interface IDAO {
     User getUser(Long id) throws SQLException;
 
     List<User> getUserList() throws SQLException;
-    void updateUser(User user) throws SQLException, IllegalAccessException;
+    User updateUser(User user) throws SQLException, IllegalAccessException;
 
     Comment getComment(Long id) throws SQLException;
 
