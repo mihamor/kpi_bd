@@ -1,10 +1,7 @@
 package com.company.dao;
 
-import com.company.model.Comment;
-import com.company.model.Review;
-import com.company.model.User;
+import com.company.model.*;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -13,17 +10,23 @@ public interface IDAO {
     void connect() throws SQLException;
 
     User getUser(Long id) throws SQLException;
-
     List<User> getUserList() throws SQLException;
     User updateUser(User user) throws SQLException, IllegalAccessException;
 
-    Comment getComment(Long id) throws SQLException;
+    Rating getRating(Long id) throws SQLException;
+    List<Rating> getRatingList() throws SQLException;
+    Rating updateRating(Rating rating) throws SQLException, IllegalAccessException;
 
-    List<Comment> getCommentList() throws SQLException;
+    Answer getAnswer(Long id) throws SQLException;
+    List<Answer> getAnswerList() throws SQLException;
+    Answer updateAnswer(Answer answer) throws SQLException, IllegalAccessException;
 
-    Review getReview(Long id) throws SQLException;
+    Question getQuestion(Long id) throws SQLException;
+    List<Question> getQuestionList() throws SQLException;
+    Question updateQuestion(Question question) throws SQLException, IllegalAccessException;
 
-    List<Review> getReviewList() throws SQLException;
-
+    Tag getTag(Long id) throws SQLException;
+    List<Tag> getTagList() throws SQLException;
+    Tag updateTag(Tag tag) throws SQLException, IllegalAccessException;
     String getEntityErrorMessage();
 }

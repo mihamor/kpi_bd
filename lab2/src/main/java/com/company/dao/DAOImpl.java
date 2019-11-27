@@ -8,7 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public class DAOImpl<T> implements IDAOImpl<T> {
 
@@ -26,13 +25,16 @@ public class DAOImpl<T> implements IDAOImpl<T> {
         try {
             entity = clazz.getConstructor().newInstance();
             for (Field field : fields) {
-                String name = field.getName();
+                Column columnAnnotation = field.getAnnotation(Column.class);
+                String name = columnAnnotation != null ? columnAnnotation.name() : field.getName();
                 try {
                     String value = resultSet.getString(name);
                     Class type = field.getType();
-                    field.set(entity, type.isEnum()
-                            ? type.getDeclaredMethod("fromString", String.class).invoke(null, value)
-                            : type.getConstructor(String.class).newInstance(value));
+                    if(value != null) {
+                        field.set(entity, type.isEnum()
+                                ? type.getDeclaredMethod("fromString", String.class).invoke(null, value)
+                                : type.getConstructor(String.class).newInstance(value));
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -72,7 +74,7 @@ public class DAOImpl<T> implements IDAOImpl<T> {
     }
 
     public List<T> getEntityList() throws SQLException {
-        TableName tableAnnotation = clazz.getAnnotation(TableName.class);
+        Table tableAnnotation = clazz.getAnnotation(Table.class);
 
         String sql = String.format("SELECT * FROM public.%s", tableAnnotation.name());
         PreparedStatement preparedStatement = connection.prepareStatement(
@@ -88,7 +90,7 @@ public class DAOImpl<T> implements IDAOImpl<T> {
 
     public T getEntity(Long id) throws SQLException {
         T entity;
-        TableName tableAnnotation = clazz.getAnnotation(TableName.class);
+        Table tableAnnotation = clazz.getAnnotation(Table.class);
 
         String sql = String.format("SELECT * FROM public.%s WHERE id = ?", tableAnnotation.name());
         PreparedStatement preparedStatement = connection.prepareStatement(
@@ -107,7 +109,7 @@ public class DAOImpl<T> implements IDAOImpl<T> {
     }
 
     public T updateEntity(T entity) throws SQLException, IllegalAccessException {
-        TableName tableAnnotation = clazz.getAnnotation(TableName.class);
+        Table tableAnnotation = clazz.getAnnotation(Table.class);
         List<Field> fields = new ArrayList<>();
         ReflectionUtils.getAllFields(fields, clazz);
 
@@ -119,8 +121,11 @@ public class DAOImpl<T> implements IDAOImpl<T> {
             }
         }
 
+        Column columnAnnotation = primaryField.getAnnotation(Column.class);
+        String name = columnAnnotation != null ? columnAnnotation.name() : primaryField.getName();
+
         String sql = String.format("UPDATE public.%s SET %s WHERE %s = ? RETURNING *;",
-                tableAnnotation.name(), getFieldSqlString(entity), primaryField.getName());
+                tableAnnotation.name(), getFieldSqlString(entity), name);
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setLong(1, (Long) primaryField.get(entity));

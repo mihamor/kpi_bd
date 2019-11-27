@@ -1,37 +1,53 @@
 package com.company.model;
 
-@TableName(name = "users")
+@Table(name = "users")
 public class User {
 
     @Primary
+    @Column(name = "uid")
     private Long id;
-    private String name;
-    private String address;
+
+    private String username;
+    private String fullname;
+    private String passhash;
 
     public User () {}
-    public User(Long id, String name, String address) {
+    public User(Long id, String username, String fullname, String passhash) {
         this.id = id;
-        this.name = name;
-        this.address = address;
-    }
-
-    public String getName() {
-        return name;
+        this.username = username;
+        this.fullname = fullname;
+        this.passhash = passhash;
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getAddress() {
-        return address;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public String getFullname() {
+        return fullname;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPasshash() {
+        return passhash;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPasshash(String passhash) {
+        this.passhash = passhash;
     }
 }

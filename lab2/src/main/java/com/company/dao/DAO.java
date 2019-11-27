@@ -1,8 +1,7 @@
 package com.company.dao;
 
-import com.company.model.Comment;
-import com.company.model.Review;
-import com.company.model.User;
+import com.company.model.*;
+
 import java.sql.*;
 
 import java.util.List;
@@ -10,8 +9,11 @@ import java.util.List;
 public class DAO implements IDAO {
 
     IDAOImpl<User> usersDAOImpl;
-    IDAOImpl<Comment> commentDAOImpl;
-    IDAOImpl<Review> reviewDAOImpl;
+    IDAOImpl<Rating> ratingDAOImpl;
+    IDAOImpl<Answer> answerDAOImpl;
+    IDAOImpl<Question> questionDAOImpl;
+    IDAOImpl<Tag> tagDAOImpl;
+
     Connection connection;
     String url;
     String user;
@@ -25,9 +27,11 @@ public class DAO implements IDAO {
 
     public void connect() throws SQLException{
         connection = DriverManager.getConnection(url, user, password);
-        usersDAOImpl = new DAOImpl<User>(User.class, connection);
-        commentDAOImpl = new DAOImpl<Comment>(Comment.class, connection);
-        reviewDAOImpl = new DAOImpl<Review>(Review.class, connection);
+        usersDAOImpl = new DAOImpl<>(User.class, connection);
+        ratingDAOImpl = new DAOImpl<>(Rating.class, connection);
+        answerDAOImpl = new DAOImpl<>(Answer.class, connection);
+        questionDAOImpl = new DAOImpl<>(Question.class, connection);
+        tagDAOImpl = new DAOImpl<>(Tag.class, connection);
     }
 
     public User getUser(Long id) throws SQLException {
@@ -38,33 +42,57 @@ public class DAO implements IDAO {
         return usersDAOImpl.updateEntity(user);
     }
 
-    public Comment updateComment(Comment comment) throws SQLException, IllegalAccessException {
-        return commentDAOImpl.updateEntity(comment);
+    public Rating updateRating(Rating rating) throws SQLException, IllegalAccessException {
+        return ratingDAOImpl.updateEntity(rating);
     }
 
-    public Review updateReview(Review review) throws SQLException, IllegalAccessException {
-        return reviewDAOImpl.updateEntity(review);
+    public Answer updateAnswer(Answer answer) throws SQLException, IllegalAccessException {
+        return answerDAOImpl.updateEntity(answer);
     }
 
     public List<User> getUserList() throws SQLException {
         return usersDAOImpl.getEntityList();
     }
-    public Comment getComment(Long id) throws SQLException {
-        return commentDAOImpl.getEntity(id);
+    public Rating getRating(Long id) throws SQLException {
+        return ratingDAOImpl.getEntity(id);
     }
-    public List<Comment> getCommentList() throws SQLException {
-        return commentDAOImpl.getEntityList();
-    }
-
-    public Review getReview(Long id) throws SQLException {
-        return reviewDAOImpl.getEntity(id);
+    public List<Rating> getRatingList() throws SQLException {
+        return ratingDAOImpl.getEntityList();
     }
 
-    public List<Review> getReviewList() throws SQLException {
-        return reviewDAOImpl.getEntityList();
+    public Answer getAnswer(Long id) throws SQLException {
+        return answerDAOImpl.getEntity(id);
+    }
+
+    public List<Answer> getAnswerList() throws SQLException {
+        return answerDAOImpl.getEntityList();
+    }
+
+    public Question getQuestion(Long id) throws SQLException {
+        return questionDAOImpl.getEntity(id);
+    }
+
+    public List<Question> getQuestionList() throws SQLException {
+        return questionDAOImpl.getEntityList();
+    }
+
+    public Question updateQuestion(Question question) throws SQLException, IllegalAccessException {
+        return questionDAOImpl.updateEntity(question);
+    }
+
+    public Tag getTag(Long id) throws SQLException {
+        return tagDAOImpl.getEntity(id);
+    }
+
+    public List<Tag> getTagList() throws SQLException {
+        return tagDAOImpl.getEntityList();
+    }
+
+    public Tag updateTag(Tag tag) throws SQLException, IllegalAccessException {
+        return tagDAOImpl.updateEntity(tag);
     }
 
     public String getEntityErrorMessage() {
-        return usersDAOImpl.getEntityErrorMessage() + commentDAOImpl.getEntityErrorMessage();
+        return usersDAOImpl.getEntityErrorMessage() + ratingDAOImpl.getEntityErrorMessage();
     }
 }

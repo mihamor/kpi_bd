@@ -1,9 +1,7 @@
 package com.company;
 
 import com.company.dao.DAO;
-import com.company.model.Comment;
-import com.company.model.Review;
-import com.company.model.User;
+import com.company.model.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -40,20 +38,33 @@ public class Main {
             System.out.println("Users: ");
             List<User> users = dao.getUserList();
             for (User user:users) {
-                System.out.println(user.getName());
+                System.out.println(user.getFullname());
             }
 
-            System.out.println("Comments: ");
-            List<Comment> comments = dao.getCommentList();
-            for (Comment comment:comments) {
-                System.out.println(comment.getContent());
+            System.out.println("Answers: ");
+            List<Answer> answers = dao.getAnswerList();
+            for (Answer answer:answers) {
+                System.out.println(answer.getAnswerText());
             }
 
-            System.out.println("Reviews: ");
-            List<Review> reviews = dao.getReviewList();
-            for (Review review:reviews) {
-                System.out.println(review.getGrade());
+            System.out.println("Questions: ");
+            List<Question> questions = dao.getQuestionList();
+            for (Question question:questions) {
+                System.out.println(question.getEssence());
             }
+
+            System.out.println("Ratings: ");
+            List<Rating> ratings = dao.getRatingList();
+            for (Rating rating:ratings) {
+                System.out.println(rating.getQuantity());
+            }
+
+            System.out.println("Tags: ");
+            List<Tag> tags = dao.getTagList();
+            for (Tag tag:tags) {
+                System.out.println(tag.getName());
+            }
+
         } catch (SQLException ex) {
             lgr.log(Level.SEVERE, ex.getMessage(), ex);
         }

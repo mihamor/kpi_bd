@@ -1,9 +1,5 @@
-import com.company.dao.DAO;
 import com.company.dao.DAOImpl;
-import com.company.model.Comment;
-import com.company.model.Grade;
-import com.company.model.Review;
-import com.company.model.User;
+import com.company.model.*;
 import org.jooq.tools.jdbc.MockConnection;
 import org.jooq.tools.jdbc.MockFileDatabase;
 import org.junit.Before;
@@ -21,8 +17,8 @@ public class DAOTest {
 
     Connection connection;
     DAOImpl<User> userDAO;
-    DAOImpl<Comment> commentDAO;
-    DAOImpl<Review> reviewDAO;
+    DAOImpl<Rating> ratingDAO;
+    DAOImpl<Answer> answerDao;
 
     @Before
     public void init() throws IOException {
@@ -30,8 +26,8 @@ public class DAOTest {
         connection = new MockConnection(db);
 
         userDAO = new DAOImpl<>(User.class, connection);
-        commentDAO = new DAOImpl<>(Comment.class, connection);
-        reviewDAO = new DAOImpl<>(Review.class, connection);
+        ratingDAO = new DAOImpl<>(Rating.class, connection);
+        answerDao = new DAOImpl<>(Answer.class, connection);
     }
 
     @Test
@@ -39,25 +35,25 @@ public class DAOTest {
         List<User> users = userDAO.getEntityList();
 
         assertEquals(2, users.size());
-        assertEquals("user1", users.get(0).getName());
-        assertEquals("user2", users.get(1).getName());
+        assertEquals("user1", users.get(0).getUsername());
+        assertEquals("user2", users.get(1).getUsername());
     }
 
     @Test
     public void getValidCommentList() throws SQLException {
-        List<Comment> comments = commentDAO.getEntityList();
+        List<Rating> comments = ratingDAO.getEntityList();
 
         assertEquals(2, comments.size());
-        assertEquals("test1", comments.get(0).getContent());
-        assertEquals("test2", comments.get(1).getContent());
+        assertEquals("test1", comments.get(0).getAnswerId());
+        assertEquals("test2", comments.get(1).getAnswerId());
     }
 
     @Test
-    public void getValidReviewList() throws SQLException {
-        List<Review> reviews = reviewDAO.getEntityList();
+    public void getValidAnswerList() throws SQLException {
+        List<Answer> answers = answerDao.getEntityList();
 
-        assertEquals(1, reviews.size());
-        assertEquals(Grade.GOOD.getValue(), reviews.get(0).getGrade().getValue());
+        assertEquals(1, answers.size());
+        assertEquals("cool", answers.get(0).getAnswerText());
     }
 
     @Test
@@ -67,8 +63,8 @@ public class DAOTest {
 
         assertNotNull(user);
         assertEquals(id, user.getId());
-        assertEquals("user1", user.getName());
-        assertEquals("addr1", user.getAddress());
+        assertEquals("user1", user.getFullname());
+        assertEquals("addr1", user.getUsername());
     }
 
     @Test
@@ -82,20 +78,20 @@ public class DAOTest {
     @Test
     public void getValidCommentById() throws SQLException {
         Long id = new Long(1);
-        Comment comment = commentDAO.getEntity(id);
+        Rating comment = ratingDAO.getEntity(id);
 
         assertNotNull(comment);
         assertEquals(id, comment.getId());
-        assertEquals("test1", comment.getContent());
+        assertEquals("test1", comment.getAnswerId());
     }
 
     @Test
     public void getValidReviewById() throws SQLException {
         Long id = new Long(3);
-        Review review = reviewDAO.getEntity(id);
+        Answer answer = answerDao.getEntity(id);
 
-        assertNotNull(review);
-        assertEquals(id, review.getId());
-        assertEquals(Grade.GOOD.getValue(), review.getGrade().getValue());
+        assertNotNull(answer);
+        assertEquals(id, answer.getId());
+        assertEquals("cool", answer.getAnswerText());
     }
 }
