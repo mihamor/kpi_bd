@@ -50,11 +50,6 @@ public class DAOImpl<T> implements IDAOImpl<T> {
     }
 
     private List<T> resultSetToList(ResultSet resultSet) throws SQLException {
-        DiscriminationColumn columnAnnotation = clazz.getAnnotation(DiscriminationColumn.class);
-        String discriminatorColumn = columnAnnotation != null ? columnAnnotation.name() : null;
-        DiscriminatorValue discriminatorAnnotation = clazz.getAnnotation(DiscriminatorValue.class);
-        String discriminator = discriminatorAnnotation != null ? discriminatorAnnotation.value() : null;
-
         List<Field> fields = new ArrayList<>();
         ReflectionUtils.getAllFields(fields, clazz);
 
@@ -65,10 +60,8 @@ public class DAOImpl<T> implements IDAOImpl<T> {
         List<T> list = new ArrayList<>();
         resultSet.beforeFirst();
         while (resultSet.next()) {
-            if(discriminatorColumn == null || resultSet.getString(discriminatorColumn).equals(discriminator)) {
-                T entity = createEntity(resultSet, fields);
-                list.add(entity);
-            }
+            T entity = createEntity(resultSet, fields);
+            list.add(entity);
         }
         return list;
     }
@@ -145,11 +138,6 @@ public class DAOImpl<T> implements IDAOImpl<T> {
         List<Field> fields = new ArrayList<>();
         ReflectionUtils.getAllFields(fields, clazz);
 
-        DiscriminationColumn columnAnnotation = clazz.getAnnotation(DiscriminationColumn.class);
-        String discriminatorColumn = columnAnnotation != null ? columnAnnotation.name() : null;
-        DiscriminatorValue discriminatorAnnotation = clazz.getAnnotation(DiscriminatorValue.class);
-        String discriminator = discriminatorAnnotation != null ? discriminatorAnnotation.value() : null;
-
 
         String sql = new String();
         for(int fieldId = 0; fieldId < fields.size(); fieldId++) {
@@ -159,10 +147,6 @@ public class DAOImpl<T> implements IDAOImpl<T> {
             if(fieldId != fields.size() - 1) {
                 sql += ", ";
             }
-        }
-
-        if(discriminatorColumn != null) {
-            sql += String.format(", %s = %s", discriminatorColumn, discriminator);
         }
 
         return sql;
