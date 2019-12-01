@@ -39,6 +39,7 @@ public class Main {
             List<User> users = dao.getUserList();
             for (User user:users) {
                 System.out.println(user.getFullname());
+                System.out.println(user.getPasshash());
             }
 
             System.out.println("Answers: ");
@@ -65,7 +66,15 @@ public class Main {
                 System.out.println(tag.getName());
             }
 
-        } catch (SQLException ex) {
+
+            User user = new User(null, "username", "fullname", "passhash");
+//            User deletedUser = dao.deleteUser((long) 3);
+//            System.out.println("Deleted user: ");
+//            System.out.println(deletedUser.getUsername());
+            User insertedUser = dao.insertUser(user);
+            System.out.println("Inserted user: " + insertedUser.getId());
+
+        } catch (Exception ex) {
             lgr.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }

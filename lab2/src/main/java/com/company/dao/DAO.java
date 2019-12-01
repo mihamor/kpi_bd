@@ -42,12 +42,36 @@ public class DAO implements IDAO {
         return usersDAOImpl.updateEntity(user);
     }
 
+    public User deleteUser(Long id) throws SQLException {
+        return usersDAOImpl.deleteEntity(id);
+    }
+
+    public User insertUser(User user) throws SQLException, IllegalAccessException {
+        return usersDAOImpl.insertEntity(user);
+    }
+
     public Rating updateRating(Rating rating) throws SQLException, IllegalAccessException {
         return ratingDAOImpl.updateEntity(rating);
     }
 
+    public Rating deleteRating(Long id) throws SQLException {
+        return ratingDAOImpl.deleteEntity(id);
+    }
+
+    public Rating insertRating(Rating rating) throws SQLException, IllegalAccessException {
+        return ratingDAOImpl.insertEntity(rating);
+    }
+
     public Answer updateAnswer(Answer answer) throws SQLException, IllegalAccessException {
         return answerDAOImpl.updateEntity(answer);
+    }
+
+    public Answer deleteAnswer(Long id) throws SQLException {
+        return answerDAOImpl.deleteEntity(id);
+    }
+
+    public Answer insertAnswer(Answer answer) throws SQLException, IllegalAccessException {
+        return answerDAOImpl.insertEntity(answer);
     }
 
     public List<User> getUserList() throws SQLException {
@@ -80,6 +104,14 @@ public class DAO implements IDAO {
         return questionDAOImpl.updateEntity(question);
     }
 
+    public Question deleteQuestion(Long id) throws SQLException {
+        return questionDAOImpl.deleteEntity(id);
+    }
+
+    public Question insertQuestion(Question question) throws SQLException, IllegalAccessException {
+        return questionDAOImpl.insertEntity(question);
+    }
+
     public Tag getTag(Long id) throws SQLException {
         return tagDAOImpl.getEntity(id);
     }
@@ -90,6 +122,14 @@ public class DAO implements IDAO {
 
     public Tag updateTag(Tag tag) throws SQLException, IllegalAccessException {
         return tagDAOImpl.updateEntity(tag);
+    }
+
+    public Tag deleteTag(Long id) throws SQLException {
+        return tagDAOImpl.deleteEntity(id);
+    }
+
+    public Tag insertTag(Tag tag) throws SQLException, IllegalAccessException {
+        return tagDAOImpl.insertEntity(tag);
     }
 
     public String getEntityErrorMessage() {

@@ -120,7 +120,10 @@ public class DAOImpl<T> implements IDAOImpl<T> {
         String sql = String.format("UPDATE public.%s SET %s WHERE %s = ? RETURNING *;",
                 tableAnnotation.name(), getFieldSqlString(entity), name);
 
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY
+        );
+
         preparedStatement.setLong(1, (Long) primaryField.get(entity));
         ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -143,7 +146,9 @@ public class DAOImpl<T> implements IDAOImpl<T> {
         for(int fieldId = 0; fieldId < fields.size(); fieldId++) {
             Field field = fields.get(fieldId);
             field.setAccessible(true);
-            sql += String.format("%s = %s", field.getName(), field.get(entity));
+            Column columnAnnotation = field.getAnnotation(Column.class);
+            String name = columnAnnotation != null ? columnAnnotation.name() : field.getName();
+            sql += String.format("%s = '%s'", name, field.get(entity));
             if(fieldId != fields.size() - 1) {
                 sql += ", ";
             }
@@ -151,5 +156,123 @@ public class DAOImpl<T> implements IDAOImpl<T> {
 
         return sql;
     }
+
+
+    public T deleteEntity(Long id) throws SQLException {
+        Table tableAnnotation = clazz.getAnnotation(Table.class);
+        List<Field> fields = new ArrayList<>();
+        ReflectionUtils.getAllFields(fields, clazz);
+
+        Field primary = null;
+        for (Field field : fields) {
+            field.setAccessible(true);
+            if (field.isAnnotationPresent(Primary.class)) {
+                primary = field;
+            }
+        }
+
+        Column columnAnnotation = primary.getAnnotation(Column.class);
+        String primaryKeyName = columnAnnotation != null ? columnAnnotation.name() : primary.getName();
+
+        String sql = String.format("DELETE FROM public.%s WHERE %s = ? RETURNING *;",
+                tableAnnotation.name(), primaryKeyName);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY
+        );
+        preparedStatement.setLong(1, id);
+
+        System.out.println(preparedStatement.toString());
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        T deletedEntity;
+        try {
+            deletedEntity = resultSetToList(resultSet).get(0);
+        } catch (IndexOutOfBoundsException ex) {
+            deletedEntity = null;
+        }
+
+        return deletedEntity;
+    }
+
+    private String getRowsString(T entity) throws IllegalAccessException {
+        List<Field> fields = new ArrayList<>();
+        ReflectionUtils.getAllFields(fields, clazz);
+
+        List<String> rows = new ArrayList<>();
+        for(int fieldId = 0; fieldId < fields.size(); fieldId++) {
+            Field field = fields.get(fieldId);
+            field.setAccessible(true);
+            Object value = field.get(entity);
+            if(value != null) {
+                Column columnAnnotation = field.getAnnotation(Column.class);
+                String rowName = columnAnnotation != null ? columnAnnotation.name() : field.getName();
+                rows.add(rowName);
+            }
+        }
+
+        return String.join(", ", rows);
+    }
+
+    private String getValuesPrepareString(T entity) throws IllegalAccessException {
+        List<Field> fields = new ArrayList<>();
+        ReflectionUtils.getAllFields(fields, clazz);
+
+        List<String> values = new ArrayList<>();
+        for(int fieldId = 0; fieldId < fields.size(); fieldId++) {
+            Field field = fields.get(fieldId);
+            field.setAccessible(true);
+            Object value = field.get(entity);
+            if(value != null) {
+                values.add("?");
+            }
+        }
+
+        return String.join(", ", values);
+    }
+
+
+    public T insertEntity(T entity) throws SQLException, IllegalAccessException {
+        Table tableAnnotation = clazz.getAnnotation(Table.class);
+        List<Field> fields = new ArrayList<>();
+        ReflectionUtils.getAllFields(fields, clazz);
+
+        String sql = String.format("INSERT INTO public.%s (%s) VALUES (%s) RETURNING *;",
+                tableAnnotation.name(), getRowsString(entity), getValuesPrepareString(entity));
+
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY
+        );
+
+
+        int parameterIndex = 1;
+        for(int fieldId = 0; fieldId < fields.size(); fieldId++) {
+            Field field = fields.get(fieldId);
+            field.setAccessible(true);
+            Class type = field.getType();
+            Object value = field.get(entity);
+
+            if(value != null) {
+                if (type == Long.class) {
+                    preparedStatement.setLong(parameterIndex, (Long) field.get(entity));
+                } else if (value != null) {
+                    preparedStatement.setString(parameterIndex, String.valueOf(field.get(entity)));
+                }
+                parameterIndex += 1;
+            }
+        }
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        T insertedEntity;
+        try {
+            insertedEntity = resultSetToList(resultSet).get(0);
+        } catch (IndexOutOfBoundsException ex) {
+            insertedEntity = null;
+        }
+
+        return insertedEntity;
+    }
+
 
 }
