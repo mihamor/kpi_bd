@@ -85,7 +85,21 @@ public class DAOImpl<T> implements IDAOImpl<T> {
         T entity;
         Table tableAnnotation = clazz.getAnnotation(Table.class);
 
-        String sql = String.format("SELECT * FROM public.%s WHERE id = ?", tableAnnotation.name());
+        List<Field> fields = new ArrayList<>();
+        ReflectionUtils.getAllFields(fields, clazz);
+
+        Field primaryField = null;
+        for(Field field: fields) {
+            field.setAccessible(true);
+            if (field.isAnnotationPresent(Primary.class)) {
+                primaryField = field;
+            }
+        }
+
+        Column columnAnnotation = primaryField.getAnnotation(Column.class);
+        String primaryName = columnAnnotation != null ? columnAnnotation.name() : primaryField.getName();
+
+        String sql = String.format("SELECT * FROM public.%s WHERE %s = ?", tableAnnotation.name(), primaryName);
         PreparedStatement preparedStatement = connection.prepareStatement(
                 sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY
         );
@@ -181,9 +195,6 @@ public class DAOImpl<T> implements IDAOImpl<T> {
                 sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY
         );
         preparedStatement.setLong(1, id);
-
-        System.out.println(preparedStatement.toString());
-
         ResultSet resultSet = preparedStatement.executeQuery();
 
         T deletedEntity;

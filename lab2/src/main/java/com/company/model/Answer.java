@@ -23,7 +23,7 @@ public class Answer {
 
     public Answer() {}
 
-    public Answer(Long id, SimpleDateFormat creationDate, Long userId, Long questionId, String  answerText) {
+    public Answer(Long id, SimpleDateFormat creationDate, Long userId, Long questionId, String answerText) {
         this.id = id;
         this.creationDate = creationDate;
         this.userId = userId;
