@@ -42,5 +42,7 @@ public interface IDAO {
     Tag deleteTag(Long id) throws  SQLException;
     Tag insertTag(Tag tag) throws SQLException, IllegalAccessException;
 
+    List<Question> searchWord(String word, boolean including) throws SQLException;
+
     String getEntityErrorMessage();
 }

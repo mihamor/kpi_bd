@@ -1,5 +1,6 @@
 package com.company.dao;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -11,4 +12,5 @@ public interface IDAOImpl<T> {
     T insertEntity(T entity) throws SQLException, IllegalAccessException;
 
     String getEntityErrorMessage();
+    public List<T> resultSetToList(ResultSet resultSet) throws SQLException;
 }

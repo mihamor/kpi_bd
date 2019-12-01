@@ -49,7 +49,7 @@ public class DAOImpl<T> implements IDAOImpl<T> {
         return entity;
     }
 
-    private List<T> resultSetToList(ResultSet resultSet) throws SQLException {
+    public List<T> resultSetToList(ResultSet resultSet) throws SQLException {
         List<Field> fields = new ArrayList<>();
         ReflectionUtils.getAllFields(fields, clazz);
 

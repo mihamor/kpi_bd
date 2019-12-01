@@ -71,8 +71,14 @@ public class Main {
 //            User deletedUser = dao.deleteUser((long) 3);
 //            System.out.println("Deleted user: ");
 //            System.out.println(deletedUser.getUsername());
-            User insertedUser = dao.insertUser(user);
-            System.out.println("Inserted user: " + insertedUser.getId());
+//            User insertedUser = dao.insertUser(user);
+//            System.out.println("Inserted user: " + insertedUser.getId());
+
+            System.out.println("Question search: ");
+            List<Question> foundedQuestions = dao.searchWord("help", true);
+            for (Question question:foundedQuestions) {
+                System.out.println(question.getEssence() + " " + question.getDescription());
+            }
 
         } catch (Exception ex) {
             lgr.log(Level.SEVERE, ex.getMessage(), ex);

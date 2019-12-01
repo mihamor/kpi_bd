@@ -132,6 +132,24 @@ public class DAO implements IDAO {
         return tagDAOImpl.insertEntity(tag);
     }
 
+    public List<Question> searchWord(String word, boolean including) throws SQLException {
+        String sql = "SELECT qid, creation_date, uid,"
+            + " ts_headline(essence, q, 'StartSel=<!>, StopSel=<!>') as essence,"
+            + " ts_headline(description, q, 'StartSel=<!>, StopSel=<!>') as description"
+            + " FROM public.questions , to_tsquery(?) as q"
+            + " WHERE " + (including == true ? "" : "not")
+            + " to_tsvector(description) || to_tsvector(essence) @@ q";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY
+        );
+        preparedStatement.setString(1, word);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        return questionDAOImpl.resultSetToList(resultSet);
+    }
+
+
     public String getEntityErrorMessage() {
         return usersDAOImpl.getEntityErrorMessage() + ratingDAOImpl.getEntityErrorMessage();
     }
