@@ -149,7 +149,19 @@ public class DAO implements IDAO {
         return questionDAOImpl.resultSetToList(resultSet);
     }
 
+    public ResultSet joinedQuestionSearch(Boolean disabled, String description) throws SQLException {
+        String sql = "SELECT * FROM questions INNER JOIN users ON users.uid = questions.uid "
+        + "WHERE (disabled = ? AND description = ?)";
 
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY
+        );
+        preparedStatement.setBoolean(1, disabled);
+        preparedStatement.setString(2, description);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        return resultSet;
+    }
     public String getEntityErrorMessage() {
         return usersDAOImpl.getEntityErrorMessage() + ratingDAOImpl.getEntityErrorMessage();
     }

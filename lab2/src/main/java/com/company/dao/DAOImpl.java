@@ -31,9 +31,13 @@ public class DAOImpl<T> implements IDAOImpl<T> {
                     String value = resultSet.getString(name);
                     Class type = field.getType();
                     if(value != null) {
-                        field.set(entity, type.isEnum()
-                                ? type.getDeclaredMethod("fromString", String.class).invoke(null, value)
-                                : type.getConstructor(String.class).newInstance(value));
+                        if(type == Boolean.class) {
+                            field.set(entity, resultSet.getBoolean(name));
+                        } else if(type == Timestamp.class) {
+                            field.set(entity, resultSet.getTimestamp(name));
+                        } else {
+                            field.set(entity, type.getConstructor(String.class).newInstance(value));
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -267,7 +271,11 @@ public class DAOImpl<T> implements IDAOImpl<T> {
             if(value != null) {
                 if (type == Long.class) {
                     preparedStatement.setLong(parameterIndex, (Long) field.get(entity));
-                } else if (value != null) {
+                } else if (type == Boolean.class) {
+                    preparedStatement.setBoolean(parameterIndex, (Boolean) field.get(entity));
+                } else if (type == Timestamp.class) {
+                    preparedStatement.setTimestamp(parameterIndex, (Timestamp) field.get(entity));
+                } else {
                     preparedStatement.setString(parameterIndex, String.valueOf(field.get(entity)));
                 }
                 parameterIndex += 1;

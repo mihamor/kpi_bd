@@ -55,6 +55,7 @@ public class View {
         System.out.println("username: " + user.getUsername());
         System.out.println("fullname: " + user.getFullname());
         System.out.println("passhash: " + user.getPasshash());
+        System.out.println("disabled: " + user.getDisabled());
     }
 
     public void showQuestion(Question question) {
@@ -62,7 +63,7 @@ public class View {
         System.out.println("id: " + question.getId());
         System.out.println("essence: " + question.getEssence());
         System.out.println("description: " + question.getDescription());
-        System.out.println("creation_date: " + question.getCreationDate().toLocalizedPattern());
+        System.out.println("creation_date: " + question.getCreationDate().toLocalDateTime());
         System.out.println("uid: " + question.getUserId());
     }
 
@@ -70,7 +71,7 @@ public class View {
         System.out.println("--------------");
         System.out.println("id: " + answer.getId());
         System.out.println("username: " + answer.getAnswerText());
-        System.out.println("creation_date: " + answer.getCreationDate().toLocalizedPattern());
+        System.out.println("creation_date: " + answer.getCreationDate().toLocalDateTime());
         System.out.println("qid: " + answer.getQuestionId());
         System.out.println("uid: " + answer.getUserId());
     }
@@ -131,5 +132,11 @@ public class View {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter " + name + ": ");
         return sc.nextLong();
+    }
+
+    public boolean getBoolean(String name) {
+        Scanner n = new Scanner(System.in);
+        System.out.println("Enter " + name + ": ");
+        return n.nextBoolean();
     }
 }

@@ -4,8 +4,12 @@ import com.company.dao.IDAO;
 import com.company.model.*;
 import com.company.view.View;
 
+import java.sql.Date;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Calendar;
 import java.util.List;
 
 public class Controller {
@@ -72,9 +76,14 @@ public class Controller {
                 }
                 case 6: {
                     view.clearScreen();
-                    List<Question> questions = dao.searchWord("help", true);
+                    List<Question> questions = dao.searchWord(
+                            view.getString("word"),
+                            view.getBoolean("including(true/false)"));
                     view.showQuestions(questions);
                     break;
+                }
+                case 7: {
+                    view.clearScreen();
                 }
                 case 8: {
                     exit = true;
@@ -189,14 +198,14 @@ public class Controller {
         }
     }
     void insert(int entity) throws SQLException, IllegalAccessException {
-        view.showDeleted();
         switch (entity) {
             case 1: {
                 User user = new User(
                     null,
                     view.getString("username"),
                     view.getString("fullname"),
-                    view.getString("passhash")
+                    view.getString("passhash"),
+                    view.getBoolean("disabled")
                 );
                 User insertedUser = dao.insertUser(user);
                 view.clearScreen();
@@ -206,7 +215,7 @@ public class Controller {
             case 2: {
                 Answer answer = new Answer(
                     null,
-                    (SimpleDateFormat) SimpleDateFormat.getDateInstance(),
+                    Timestamp.from(Instant.now()),
                     view.getLong("userId"),
                     view.getLong("questionId"),
                     view.getString("answer text")
@@ -220,7 +229,7 @@ public class Controller {
                 Question question = new Question(
                     null,
                     view.getLong("userId"),
-                    (SimpleDateFormat) SimpleDateFormat.getDateInstance(),
+                    Timestamp.from(Instant.now()),
                     view.getString("essence"),
                     view.getString("description")
                 );
@@ -255,14 +264,14 @@ public class Controller {
         }
     }
     void update(int entity) throws SQLException, IllegalAccessException {
-        view.showDeleted();
         switch (entity) {
             case 1: {
                 User user = new User(
                     view.getLong("id"),
                     view.getString("username"),
                     view.getString("fullname"),
-                    view.getString("passhash")
+                    view.getString("passhash"),
+                    view.getBoolean("disabled")
                 );
                 User updatedUser = dao.updateUser(user);
                 view.clearScreen();
@@ -272,7 +281,7 @@ public class Controller {
             case 2: {
                 Answer answer = new Answer(
                     view.getLong("id"),
-                    (SimpleDateFormat) SimpleDateFormat.getDateInstance(),
+                    Timestamp.from(Instant.now()),
                     view.getLong("userId"),
                     view.getLong("questionId"),
                     view.getString("answer text")
@@ -286,7 +295,7 @@ public class Controller {
                 Question question = new Question(
                     view.getLong("id"),
                     view.getLong("userId"),
-                    (SimpleDateFormat) SimpleDateFormat.getDateInstance(),
+                    Timestamp.from(Instant.now()),
                     view.getString("essence"),
                     view.getString("description")
                 );

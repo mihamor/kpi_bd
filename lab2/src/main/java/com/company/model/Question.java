@@ -1,6 +1,7 @@
 package com.company.model;
 
-import java.text.SimpleDateFormat;
+import java.sql.Date;
+import java.sql.Timestamp;
 
 @Table(name = "questions")
 public class Question {
@@ -11,7 +12,7 @@ public class Question {
 
 
     @Column(name = "creation_date")
-    private SimpleDateFormat creationDate;
+    private Timestamp creationDate;
 
     @Column(name = "uid")
     private Long userId;
@@ -20,7 +21,7 @@ public class Question {
     private String description;
 
     public Question () {}
-    public Question(Long id, Long userId, SimpleDateFormat creationDate, String essence, String description) {
+    public Question(Long id, Long userId, Timestamp creationDate, String essence, String description) {
         this.id = id;
         this.userId = userId;
         this.creationDate = creationDate;
@@ -44,11 +45,11 @@ public class Question {
         return userId;
     }
 
-    public void setCreationDate(SimpleDateFormat creationDate) {
+    public void setCreationDate(Timestamp creationDate) {
         this.creationDate = creationDate;
     }
 
-    public SimpleDateFormat getCreationDate() {
+    public Timestamp getCreationDate() {
         return creationDate;
     }
 
