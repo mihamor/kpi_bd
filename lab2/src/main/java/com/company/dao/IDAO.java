@@ -2,6 +2,7 @@ package com.company.dao;
 
 import com.company.model.*;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -43,6 +44,7 @@ public interface IDAO {
     Tag insertTag(Tag tag) throws SQLException, IllegalAccessException;
 
     List<Question> searchWord(String word, boolean including) throws SQLException;
+    ResultSet joinedQuestionSearch(Boolean disabled, String description) throws SQLException;
 
     String getEntityErrorMessage();
 }

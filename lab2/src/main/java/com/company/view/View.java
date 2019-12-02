@@ -2,6 +2,9 @@ package com.company.view;
 
 import com.company.model.*;
 
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -138,5 +141,22 @@ public class View {
         Scanner n = new Scanner(System.in);
         System.out.println("Enter " + name + ": ");
         return n.nextBoolean();
+    }
+
+    private void printResultSet(ResultSet resultSet) throws SQLException {
+        ResultSetMetaData rsmd = resultSet.getMetaData();
+        int columnsNumber = rsmd.getColumnCount();
+        while (resultSet.next()) {
+            for (int i = 1; i <= columnsNumber; i++) {
+                String columnValue = resultSet.getString(i);
+                System.out.println(rsmd.getColumnName(i) + ": " + columnValue);
+            }
+            System.out.println("----------");
+        }
+    }
+
+    public void joinedSearchResult(ResultSet resultSet) throws SQLException {
+        System.out.println("Joinded Search result: ");
+        printResultSet(resultSet);
     }
 }

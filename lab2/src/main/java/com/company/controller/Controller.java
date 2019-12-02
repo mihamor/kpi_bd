@@ -4,12 +4,10 @@ import com.company.dao.IDAO;
 import com.company.model.*;
 import com.company.view.View;
 
-import java.sql.Date;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Calendar;
 import java.util.List;
 
 public class Controller {
@@ -84,6 +82,12 @@ public class Controller {
                 }
                 case 7: {
                     view.clearScreen();
+                    ResultSet resultSet = dao.joinedQuestionSearch(
+                            view.getBoolean("user disabled(true/false)"),
+                            view.getString("description")
+                    );
+                    view.joinedSearchResult(resultSet);
+                    break;
                 }
                 case 8: {
                     exit = true;
@@ -242,7 +246,7 @@ public class Controller {
                 Rating rating = new Rating(
                     null,
                     view.getLong("userId"),
-                    view.getLong("questionId"),
+                    view.getLong("answerId"),
                     view.getLong("quantity")
                 );
                 Rating insertedRating = dao.insertRating(rating);

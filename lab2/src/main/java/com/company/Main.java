@@ -2,13 +2,10 @@ package com.company;
 
 import com.company.controller.Controller;
 import com.company.dao.DAO;
-import com.company.model.*;
 import com.company.view.View;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.*;
-import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
