@@ -4,6 +4,7 @@ import com.company.dao.IDAO;
 import com.company.model.*;
 import com.company.view.View;
 
+import java.security.SecureRandom;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -28,6 +29,14 @@ public class Controller {
             int operation = view.getOptionInput();
             int entity = 0;
             switch (operation) {
+                case 0: {
+                    view.clearScreen();
+                    view.showEntities();
+                    entity = view.getOptionInput();
+                    view.clearScreen();
+                    randomize(entity);
+                    break;
+                }
                 case 1: {
                     view.clearScreen();
                     view.showEntities();
@@ -93,6 +102,73 @@ public class Controller {
                     exit = true;
                     break;
                 }
+            }
+        }
+    }
+
+    private void randomize(int entity) throws SQLException, IllegalAccessException {
+        switch (entity) {
+            case 1: {
+                User user = new User(
+                    null,
+                    generateRandomString(10),
+                    generateRandomString(10),
+                    generateRandomString(10),
+                    generateRandomBoolean()
+                );
+                User insertedUser = dao.insertUser(user);
+                view.clearScreen();
+                view.showUser(insertedUser);
+                break;
+            }
+            case 2: {
+                Answer answer = new Answer(
+                    null,
+                    Timestamp.from(Instant.now()),
+                    new Long(1),
+                    new Long(1),
+                    generateRandomString(10)
+                );
+                Answer insertedAnswer = dao.insertAnswer(answer);
+                view.clearScreen();
+                view.showAnswer(insertedAnswer);
+                break;
+            }
+            case 3: {
+                Question question = new Question(
+                    null,
+                    new Long(1),
+                    Timestamp.from(Instant.now()),
+                    generateRandomString(10),
+                    generateRandomString(10)
+                );
+                Question insertedQuestion = dao.insertQuestion(question);
+                view.clearScreen();
+                view.showQuestion(insertedQuestion);
+                break;
+            }
+            case 4: {
+                Rating rating = new Rating(
+                    null,
+                    new Long(1),
+                    new Long(1),
+                    random.nextLong()
+                );
+                Rating insertedRating = dao.insertRating(rating);
+                view.clearScreen();
+                view.showRating(insertedRating);
+                break;
+            }
+            case 5: {
+                Tag tag = new Tag(
+                    null,
+                    generateRandomString(10),
+                    generateRandomString(10)
+                );
+                Tag insertedTag = dao.insertTag(tag);
+                view.clearScreen();
+                view.showTag(insertedTag);
+                break;
             }
         }
     }
@@ -333,4 +409,38 @@ public class Controller {
             }
         }
     }
+
+    private static final String CHAR_LOWER = "abcdefghijklmnopqrstuvwxyz";
+    private static final String CHAR_UPPER = CHAR_LOWER.toUpperCase();
+    private static final String NUMBER = "0123456789";
+
+    private static final String DATA_FOR_RANDOM_STRING = CHAR_LOWER + CHAR_UPPER + NUMBER;
+    private static SecureRandom random = new SecureRandom();
+
+
+
+    private static Boolean generateRandomBoolean() {
+        return random.nextBoolean();
+    }
+
+    private static String generateRandomString(int length) {
+        if (length < 1) throw new IllegalArgumentException();
+
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+
+            // 0-62 (exclusive), random returns 0-61
+            int rndCharAt = random.nextInt(DATA_FOR_RANDOM_STRING.length());
+            char rndChar = DATA_FOR_RANDOM_STRING.charAt(rndCharAt);
+
+            // debug
+            System.out.format("%d\t:\t%c%n", rndCharAt, rndChar);
+
+            sb.append(rndChar);
+
+        }
+        return sb.toString();
+    }
+
+
 }

@@ -34,6 +34,7 @@ public class View {
     }
 
     public void showMenu() {
+        System.out.println("0. Randomize...");
         System.out.println("1. Get list of...");
         System.out.println("2. Get instance by id of...");
         System.out.println("3. Insert...");
