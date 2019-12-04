@@ -74,7 +74,7 @@ public class View {
     public void showAnswer(Answer answer) {
         System.out.println("--------------");
         System.out.println("id: " + answer.getId());
-        System.out.println("username: " + answer.getAnswerText());
+        System.out.println("text: " + answer.getAnswerText());
         System.out.println("creation_date: " + answer.getCreationDate().toLocalDateTime());
         System.out.println("qid: " + answer.getQuestionId());
         System.out.println("uid: " + answer.getUserId());
@@ -83,7 +83,7 @@ public class View {
     public void showRating(Rating rating) {
         System.out.println("--------------");
         System.out.println("id: " + rating.getId());
-        System.out.println("essence: " + rating.getQuantity());
+        System.out.println("quantity: " + rating.getQuantity());
         System.out.println("aid: " + rating.getAnswerId());
         System.out.println("uid: " + rating.getUserId());
     }

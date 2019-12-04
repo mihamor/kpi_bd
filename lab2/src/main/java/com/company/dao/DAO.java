@@ -136,7 +136,7 @@ public class DAO implements IDAO {
         String sql = "SELECT qid, creation_date, uid,"
             + " ts_headline(essence, q, 'StartSel=<!>, StopSel=<!>') as essence,"
             + " ts_headline(description, q, 'StartSel=<!>, StopSel=<!>') as description"
-            + " FROM public.questions , to_tsquery(?) as q"
+            + " FROM public.questions , phraseto_tsquery(?) as q"
             + " WHERE " + (including == true ? "" : "not")
             + " to_tsvector(description) || to_tsvector(essence) @@ q";
 

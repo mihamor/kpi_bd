@@ -150,9 +150,9 @@ public class Controller {
             case 4: {
                 Rating rating = new Rating(
                     null,
-                    new Long(1),
-                    new Long(1),
-                    random.nextLong()
+                    1L,
+                    1L,
+                    (long) random.nextInt()
                 );
                 Rating insertedRating = dao.insertRating(rating);
                 view.clearScreen();
