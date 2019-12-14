@@ -1,10 +1,9 @@
 package com.company.dao;
 
-import com.company.model.*;
+import com.company.utils.HibernateSessionFactoryUtil;
 import com.company.utils.ReflectionUtils;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,286 +11,53 @@ import java.util.List;
 public class DAOImpl<T> implements IDAOImpl<T> {
 
     private Class<T> clazz;
-    private Connection connection;
     private Exception ex;
 
-    public DAOImpl(Class<T> clazz, Connection connection) {
+    public DAOImpl(Class<T> clazz) {
         this.clazz = clazz;
-        this.connection = connection;
     }
 
-    private T createEntity(ResultSet resultSet, List<Field> fields) {
-        T entity;
-        try {
-            entity = clazz.getConstructor().newInstance();
-            for (Field field : fields) {
-                Column columnAnnotation = field.getAnnotation(Column.class);
-                String name = columnAnnotation != null ? columnAnnotation.name() : field.getName();
-                try {
-                    String value = resultSet.getString(name);
-                    Class type = field.getType();
-                    if(value != null) {
-                        if(type == Boolean.class) {
-                            field.set(entity, resultSet.getBoolean(name));
-                        } else if(type == Timestamp.class) {
-                            field.set(entity, resultSet.getTimestamp(name));
-                        } else {
-                            field.set(entity, type.getConstructor(String.class).newInstance(value));
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (InstantiationException
-                | InvocationTargetException
-                | NoSuchMethodException
-                | IllegalAccessException e) {
-            e.printStackTrace();
-            entity = null;
-        }
-        return entity;
-    }
-
-    public List<T> resultSetToList(ResultSet resultSet) throws SQLException {
-        List<Field> fields = new ArrayList<>();
-        ReflectionUtils.getAllFields(fields, clazz);
-
-        for(Field field: fields) {
-            field.setAccessible(true);
-        }
-
-        List<T> list = new ArrayList<>();
-        resultSet.beforeFirst();
-        while (resultSet.next()) {
-            T entity = createEntity(resultSet, fields);
-            list.add(entity);
-        }
-        return list;
-    }
-
-    public List<T> getEntityList() throws SQLException {
-        Table tableAnnotation = clazz.getAnnotation(Table.class);
-
-        String sql = String.format("SELECT * FROM public.%s", tableAnnotation.name());
-        PreparedStatement preparedStatement = connection.prepareStatement(
-                sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
-        ResultSet resultSet = preparedStatement.executeQuery();
-
-        return resultSetToList(resultSet);
+    public List<T> getEntityList() {
+        return  (List<T>) HibernateSessionFactoryUtil.getSessionFactory().openSession().createCriteria(clazz).list();
     }
 
     public String getEntityErrorMessage() {
         return ex.toString();
     }
 
-    public T getEntity(Long id) throws SQLException {
-        T entity;
-        Table tableAnnotation = clazz.getAnnotation(Table.class);
+    public List<T> resultSetToList(ResultSet resultSet) {
+        return null;
+    }
 
-        List<Field> fields = new ArrayList<>();
-        ReflectionUtils.getAllFields(fields, clazz);
+    public T getEntity(Long id) {
+        return HibernateSessionFactoryUtil.getSessionFactory().openSession().get(clazz, id);
+    }
 
-        Field primaryField = null;
-        for(Field field: fields) {
-            field.setAccessible(true);
-            if (field.isAnnotationPresent(Primary.class)) {
-                primaryField = field;
-            }
-        }
-
-        Column columnAnnotation = primaryField.getAnnotation(Column.class);
-        String primaryName = columnAnnotation != null ? columnAnnotation.name() : primaryField.getName();
-
-        String sql = String.format("SELECT * FROM public.%s WHERE %s = ?", tableAnnotation.name(), primaryName);
-        PreparedStatement preparedStatement = connection.prepareStatement(
-                sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY
-        );
-        preparedStatement.setLong(1, id);
-        ResultSet resultSet = preparedStatement.executeQuery();
-
-        try {
-            entity = resultSetToList(resultSet).get(0);
-        } catch (IndexOutOfBoundsException ex) {
-            entity = null;
-        }
-
+    public T updateEntity(T entity) {
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Transaction tx1 = session.beginTransaction();
+        session.update(entity);
+        tx1.commit();
+        session.close();
         return entity;
     }
 
-    public T updateEntity(T entity) throws SQLException, IllegalAccessException {
-        Table tableAnnotation = clazz.getAnnotation(Table.class);
-        List<Field> fields = new ArrayList<>();
-        ReflectionUtils.getAllFields(fields, clazz);
-
-        Field primaryField = null;
-        for(Field field: fields) {
-            field.setAccessible(true);
-            if (field.isAnnotationPresent(Primary.class)) {
-                primaryField = field;
-            }
-        }
-
-        Column columnAnnotation = primaryField.getAnnotation(Column.class);
-        String name = columnAnnotation != null ? columnAnnotation.name() : primaryField.getName();
-
-        String sql = String.format("UPDATE public.%s SET %s WHERE %s = ? RETURNING *;",
-                tableAnnotation.name(), getFieldSqlString(entity), name);
-
-        PreparedStatement preparedStatement = connection.prepareStatement(
-                sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY
-        );
-
-        preparedStatement.setLong(1, (Long) primaryField.get(entity));
-        ResultSet resultSet = preparedStatement.executeQuery();
-
-        T updatedEntity;
-        try {
-            updatedEntity = resultSetToList(resultSet).get(0);
-        } catch (IndexOutOfBoundsException ex) {
-            updatedEntity = null;
-        }
-
-        return updatedEntity;
-    }
-
-    private String getFieldSqlString(T entity) throws IllegalAccessException {
-        List<Field> fields = new ArrayList<>();
-        ReflectionUtils.getAllFields(fields, clazz);
-
-
-        String sql = new String();
-        for(int fieldId = 0; fieldId < fields.size(); fieldId++) {
-            Field field = fields.get(fieldId);
-            field.setAccessible(true);
-            Column columnAnnotation = field.getAnnotation(Column.class);
-            String name = columnAnnotation != null ? columnAnnotation.name() : field.getName();
-            sql += String.format("%s = '%s'", name, field.get(entity));
-            if(fieldId != fields.size() - 1) {
-                sql += ", ";
-            }
-        }
-
-        return sql;
-    }
-
-
-    public T deleteEntity(Long id) throws SQLException {
-        Table tableAnnotation = clazz.getAnnotation(Table.class);
-        List<Field> fields = new ArrayList<>();
-        ReflectionUtils.getAllFields(fields, clazz);
-
-        Field primary = null;
-        for (Field field : fields) {
-            field.setAccessible(true);
-            if (field.isAnnotationPresent(Primary.class)) {
-                primary = field;
-            }
-        }
-
-        Column columnAnnotation = primary.getAnnotation(Column.class);
-        String primaryKeyName = columnAnnotation != null ? columnAnnotation.name() : primary.getName();
-
-        String sql = String.format("DELETE FROM public.%s WHERE %s = ? RETURNING *;",
-                tableAnnotation.name(), primaryKeyName);
-
-        PreparedStatement preparedStatement = connection.prepareStatement(
-                sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY
-        );
-        preparedStatement.setLong(1, id);
-        ResultSet resultSet = preparedStatement.executeQuery();
-
-        T deletedEntity;
-        try {
-            deletedEntity = resultSetToList(resultSet).get(0);
-        } catch (IndexOutOfBoundsException ex) {
-            deletedEntity = null;
-        }
-
+    public T deleteEntity(Long id) {
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Transaction tx1 = session.beginTransaction();
+        T deletedEntity = (T)session.load(clazz, id);
+        session.delete(deletedEntity);
+        tx1.commit();
+        session.close();
         return deletedEntity;
     }
 
-    private String getRowsString(T entity) throws IllegalAccessException {
-        List<Field> fields = new ArrayList<>();
-        ReflectionUtils.getAllFields(fields, clazz);
-
-        List<String> rows = new ArrayList<>();
-        for(int fieldId = 0; fieldId < fields.size(); fieldId++) {
-            Field field = fields.get(fieldId);
-            field.setAccessible(true);
-            Object value = field.get(entity);
-            if(value != null) {
-                Column columnAnnotation = field.getAnnotation(Column.class);
-                String rowName = columnAnnotation != null ? columnAnnotation.name() : field.getName();
-                rows.add(rowName);
-            }
-        }
-
-        return String.join(", ", rows);
+    public T insertEntity(T entity) {
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Transaction tx1 = session.beginTransaction();
+        session.save(entity);
+        tx1.commit();
+        session.close();
+        return entity;
     }
-
-    private String getValuesPrepareString(T entity) throws IllegalAccessException {
-        List<Field> fields = new ArrayList<>();
-        ReflectionUtils.getAllFields(fields, clazz);
-
-        List<String> values = new ArrayList<>();
-        for(int fieldId = 0; fieldId < fields.size(); fieldId++) {
-            Field field = fields.get(fieldId);
-            field.setAccessible(true);
-            Object value = field.get(entity);
-            if(value != null) {
-                values.add("?");
-            }
-        }
-
-        return String.join(", ", values);
-    }
-
-
-    public T insertEntity(T entity) throws SQLException, IllegalAccessException {
-        Table tableAnnotation = clazz.getAnnotation(Table.class);
-        List<Field> fields = new ArrayList<>();
-        ReflectionUtils.getAllFields(fields, clazz);
-
-        String sql = String.format("INSERT INTO public.%s (%s) VALUES (%s) RETURNING *;",
-                tableAnnotation.name(), getRowsString(entity), getValuesPrepareString(entity));
-
-        PreparedStatement preparedStatement = connection.prepareStatement(
-                sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY
-        );
-
-
-        int parameterIndex = 1;
-        for(int fieldId = 0; fieldId < fields.size(); fieldId++) {
-            Field field = fields.get(fieldId);
-            field.setAccessible(true);
-            Class type = field.getType();
-            Object value = field.get(entity);
-
-            if(value != null) {
-                if (type == Long.class) {
-                    preparedStatement.setLong(parameterIndex, (Long) field.get(entity));
-                } else if (type == Boolean.class) {
-                    preparedStatement.setBoolean(parameterIndex, (Boolean) field.get(entity));
-                } else if (type == Timestamp.class) {
-                    preparedStatement.setTimestamp(parameterIndex, (Timestamp) field.get(entity));
-                } else {
-                    preparedStatement.setString(parameterIndex, String.valueOf(field.get(entity)));
-                }
-                parameterIndex += 1;
-            }
-        }
-
-        ResultSet resultSet = preparedStatement.executeQuery();
-        T insertedEntity;
-        try {
-            insertedEntity = resultSetToList(resultSet).get(0);
-        } catch (IndexOutOfBoundsException ex) {
-            insertedEntity = null;
-        }
-
-        return insertedEntity;
-    }
-
-
 }

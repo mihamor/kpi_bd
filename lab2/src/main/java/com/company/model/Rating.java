@@ -1,19 +1,32 @@
 package com.company.model;
 
+import javax.persistence.*;
+
+@Entity
 @Table(name = "ratings")
 public class Rating {
 
-    @Primary
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "rid")
     private Long id;
 
-    @Column(name = "uid")
+    @Column(name = "uid", insertable = false, updatable = false)
     private Long userId;
 
-    @Column(name = "aid")
+    @Column(name = "aid", insertable = false, updatable = false)
     private Long answerId;
 
     private Long quantity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "uid")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "aid")
+    private Answer answer;
+
 
     public Rating() {}
     public Rating(Long id, Long userId, Long answerId, Long quantity) {
@@ -22,6 +35,10 @@ public class Rating {
        this.answerId = answerId;
        this.quantity = quantity;
     }
+
+    public User getUser() { return user; }
+
+    public void setUser(User user) { this.user = user; }
 
     public Long getId() {
         return id;

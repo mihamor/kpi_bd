@@ -1,27 +1,42 @@
 package com.company.model;
 
-import java.sql.Date;
+import javax.persistence.*;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
-@Table(name = "answers")
+@Entity
+@Table (name = "answers")
 public class Answer {
 
-    @Primary
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "aid")
     Long id;
 
     @Column(name = "creation_date")
     Timestamp creationDate;
 
-    @Column(name = "uid")
+    @Column(name = "uid", insertable = false, updatable = false)
     Long userId;
 
-    @Column(name = "qid")
+    @Column(name = "qid", insertable = false, updatable = false)
     Long questionId;
 
     @Column(name = "answer_text")
     String answerText;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "uid")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "qid")
+    private Question question;
+
+
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Rating> ratings;
 
     public Answer() {}
 
@@ -31,7 +46,20 @@ public class Answer {
         this.userId = userId;
         this.questionId = questionId;
         this.answerText = answerText;
+        this.ratings = new ArrayList<>();
     }
+
+    public void setRatings(List<Rating> ratings) { this.ratings = ratings; }
+
+    public List<Rating> getRatings() { return ratings; }
+
+    public Question getQuestion() { return question; }
+
+    public void setQuestion(Question question) { this.question = question; }
+
+    public User getUser() { return user; }
+
+    public void setUser(User user) { this.user = user; }
 
     public Long getId() {
         return id;

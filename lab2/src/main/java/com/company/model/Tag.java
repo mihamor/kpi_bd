@@ -1,15 +1,24 @@
 package com.company.model;
 
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
 @Table(name = "tags")
 public class Tag {
 
-    @Primary
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "tid")
     private Long id;
 
     private String name;
 
     private String description;
+
+    @ManyToMany(mappedBy = "tags")
+    private List<Question> questions = new ArrayList<>();
 
     public Tag() {}
     public Tag(Long id, String name, String description) {

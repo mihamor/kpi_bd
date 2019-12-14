@@ -1,15 +1,18 @@
 package com.company.model;
 
-import java.sql.Date;
+import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
-@Table(name = "questions")
+@Entity
+@Table (name = "questions")
 public class Question {
 
-    @Primary
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "qid")
     private Long id;
-
 
     @Column(name = "creation_date")
     private Timestamp creationDate;
@@ -20,6 +23,23 @@ public class Question {
     private String essence;
     private String description;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "uid", insertable = false, updatable = false)
+    private User user;
+
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Answer> answers;
+
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(name = "tags_questions",
+            joinColumns = @JoinColumn(name = "qid"),
+            inverseJoinColumns = @JoinColumn(name = "tid")
+    )
+    private List<Tag> tags = new ArrayList<>();
+
     public Question () {}
     public Question(Long id, Long userId, Timestamp creationDate, String essence, String description) {
         this.id = id;
@@ -27,6 +47,31 @@ public class Question {
         this.creationDate = creationDate;
         this.essence = essence;
         this.description = description;
+        this.answers = new ArrayList<>();
+    }
+
+    public List<Answer> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(List<Answer> answers) {
+        this.answers = answers;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
     }
 
     public Long getId() {

@@ -32,13 +32,9 @@ public class Main {
 
         try {
             View view = new View();
-            DAO dao = new DAO(url, username, password);
-            dao.connect();
-
+            DAO dao = new DAO();
             Controller controller = new Controller(view, dao);
             controller.mainMenu();
-
-
         } catch (Exception ex) {
             lgr.log(Level.SEVERE, ex.getMessage(), ex);
         }
