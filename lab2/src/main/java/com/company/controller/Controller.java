@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Controller {
@@ -106,19 +107,25 @@ public class Controller {
         }
     }
 
-    private void randomize(int entity) throws SQLException, IllegalAccessException {
+    private void randomize(int entity) {
         switch (entity) {
             case 1: {
-                User user = new User(
-                    null,
-                    generateRandomString(10),
-                    generateRandomString(10),
-                    generateRandomString(10),
-                    generateRandomBoolean()
-                );
-                User insertedUser = dao.insertUser(user);
+                long quantity = view.getLong("Enter quantity");
+                List<User> users = new ArrayList<>();
+                for (int i = 0; i < quantity; i++) {
+                    User user = new User(
+                            null,
+                            generateRandomString(10),
+                            generateRandomString(10),
+                            generateRandomString(10),
+                            generateRandomBoolean()
+                    );
+                    users.add(user);
+                }
+
+                List<User> insertedUsers = dao.insertUserList(users);
                 view.clearScreen();
-                view.showUser(insertedUser);
+                view.showUsers(insertedUsers);
                 break;
             }
             case 2: {
@@ -434,7 +441,7 @@ public class Controller {
             char rndChar = DATA_FOR_RANDOM_STRING.charAt(rndCharAt);
 
             // debug
-            System.out.format("%d\t:\t%c%n", rndCharAt, rndChar);
+            // System.out.format("%d\t:\t%c%n", rndCharAt, rndChar);
 
             sb.append(rndChar);
 

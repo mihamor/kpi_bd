@@ -27,7 +27,6 @@ public class Rating {
     @JoinColumn(name = "aid")
     private Answer answer;
 
-
     public Rating() {}
     public Rating(Long id, Long userId, Long answerId, Long quantity) {
        this.id = id;

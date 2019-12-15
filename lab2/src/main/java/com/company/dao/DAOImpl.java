@@ -29,6 +29,17 @@ public class DAOImpl<T> implements IDAOImpl<T> {
         return null;
     }
 
+    public List<T> insertEntityList(List<T> entities) {
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Transaction tx1 = session.beginTransaction();
+        for (T entity: entities) {
+            session.save(entity);
+        }
+        tx1.commit();
+        session.close();
+        return entities;
+    }
+
     public T getEntity(Long id) {
         return HibernateSessionFactoryUtil.getSessionFactory().openSession().get(clazz, id);
     }

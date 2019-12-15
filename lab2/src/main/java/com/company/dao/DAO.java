@@ -1,9 +1,7 @@
 package com.company.dao;
 
 import com.company.model.*;
-
 import java.sql.*;
-
 import java.util.List;
 
 public class DAO implements IDAO {
@@ -22,52 +20,41 @@ public class DAO implements IDAO {
         tagDAOImpl = new DAOImpl<>(Tag.class);
     }
 
-    public User getUser(Long id) {
-        return usersDAOImpl.getEntity(id);
-    }
+    public User getUser(Long id) { return usersDAOImpl.getEntity(id); }
 
-    public User updateUser(User user)  {
-        return usersDAOImpl.updateEntity(user);
-    }
+    public User updateUser(User user)  { return usersDAOImpl.updateEntity(user); }
 
     public User deleteUser(Long id)  {
         return usersDAOImpl.deleteEntity(id);
     }
 
-    public User insertUser(User user)  {
-        return usersDAOImpl.insertEntity(user);
-    }
+    public User insertUser(User user)  { return usersDAOImpl.insertEntity(user); }
+    public List<User> insertUserList(List<User> users) { return  usersDAOImpl.insertEntityList(users); }
 
-    public Rating updateRating(Rating rating)  {
-        return ratingDAOImpl.updateEntity(rating);
-    }
+    public Rating updateRating(Rating rating)  { return ratingDAOImpl.updateEntity(rating); }
 
     public Rating deleteRating(Long id)  {
         return ratingDAOImpl.deleteEntity(id);
     }
 
-    public Rating insertRating(Rating rating)  {
-        return ratingDAOImpl.insertEntity(rating);
-    }
+    public Rating insertRating(Rating rating)  { return ratingDAOImpl.insertEntity(rating); }
 
-    public Answer updateAnswer(Answer answer)  {
-        return answerDAOImpl.updateEntity(answer);
-    }
+    public Answer updateAnswer(Answer answer)  { return answerDAOImpl.updateEntity(answer); }
 
     public Answer deleteAnswer(Long id)  {
         return answerDAOImpl.deleteEntity(id);
     }
 
-    public Answer insertAnswer(Answer answer)  {
-        return answerDAOImpl.insertEntity(answer);
-    }
+    public Answer insertAnswer(Answer answer)  { return answerDAOImpl.insertEntity(answer); }
 
     public List<User> getUserList()  {
         return usersDAOImpl.getEntityList();
     }
+
     public Rating getRating(Long id)  {
         return ratingDAOImpl.getEntity(id);
     }
+
     public List<Rating> getRatingList()  {
         return ratingDAOImpl.getEntityList();
     }
@@ -88,17 +75,13 @@ public class DAO implements IDAO {
         return questionDAOImpl.getEntityList();
     }
 
-    public Question updateQuestion(Question question)  {
-        return questionDAOImpl.updateEntity(question);
-    }
+    public Question updateQuestion(Question question)  { return questionDAOImpl.updateEntity(question); }
 
     public Question deleteQuestion(Long id)  {
         return questionDAOImpl.deleteEntity(id);
     }
 
-    public Question insertQuestion(Question question)  {
-        return questionDAOImpl.insertEntity(question);
-    }
+    public Question insertQuestion(Question question)  { return questionDAOImpl.insertEntity(question); }
 
     public Tag getTag(Long id)  {
         return tagDAOImpl.getEntity(id);
@@ -108,17 +91,13 @@ public class DAO implements IDAO {
         return tagDAOImpl.getEntityList();
     }
 
-    public Tag updateTag(Tag tag)  {
-        return tagDAOImpl.updateEntity(tag);
-    }
+    public Tag updateTag(Tag tag)  { return tagDAOImpl.updateEntity(tag); }
 
     public Tag deleteTag(Long id)  {
         return tagDAOImpl.deleteEntity(id);
     }
 
-    public Tag insertTag(Tag tag)  {
-        return tagDAOImpl.insertEntity(tag);
-    }
+    public Tag insertTag(Tag tag)  { return tagDAOImpl.insertEntity(tag); }
 
     public List<Question> searchWord(String word, boolean including)  {
 //        String sql = "SELECT qid, creation_date, uid,"

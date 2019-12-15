@@ -13,4 +13,6 @@ public interface IDAOImpl<T> {
 
     String getEntityErrorMessage();
     public List<T> resultSetToList(ResultSet resultSet);
+
+    List<T> insertEntityList(List<T> entities);
 }

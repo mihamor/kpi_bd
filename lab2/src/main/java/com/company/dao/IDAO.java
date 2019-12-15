@@ -13,6 +13,7 @@ public interface IDAO {
     User updateUser(User user);
     User deleteUser(Long id);
     User insertUser(User user);
+    List<User> insertUserList(List<User> users);
 
     Rating getRating(Long id);
     List<Rating> getRatingList();

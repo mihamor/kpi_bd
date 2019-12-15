@@ -69,6 +69,7 @@ public class View {
         System.out.println("description: " + question.getDescription());
         System.out.println("creation_date: " + question.getCreationDate().toLocalDateTime());
         System.out.println("uid: " + question.getUserId());
+        System.out.println("user: " + question.getUser().getUsername());
     }
 
     public void showAnswer(Answer answer) {
@@ -78,6 +79,7 @@ public class View {
         System.out.println("creation_date: " + answer.getCreationDate().toLocalDateTime());
         System.out.println("qid: " + answer.getQuestionId());
         System.out.println("uid: " + answer.getUserId());
+        System.out.println("user: " + answer.getUser().getUsername());
     }
 
     public void showRating(Rating rating) {
@@ -86,6 +88,7 @@ public class View {
         System.out.println("quantity: " + rating.getQuantity());
         System.out.println("aid: " + rating.getAnswerId());
         System.out.println("uid: " + rating.getUserId());
+        System.out.println("user: " + rating.getUser().getUsername());
     }
 
     public void showTag(Tag tag) {
